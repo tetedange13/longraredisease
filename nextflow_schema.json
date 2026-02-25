@@ -192,6 +192,13 @@
                     "description": "Primary SV caller to use if no consensuSV.",
                     "fa_icon": "fas fa-tools"
                 },
+                "sv_annotator": {
+                    "type": "string",
+                    "default": "svanna",
+                    "enum": ["svanna", "annotsv"],
+                    "description": "Primary SV annotator to use.",
+                    "fa_icon": "fas fa-tools"
+                },
                 "downsample_sv": {
                     "type": "boolean",
                     "default": false,

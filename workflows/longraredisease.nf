@@ -45,6 +45,7 @@ include { SV_PLOT as SV_PLOT_SVIM            } from '../modules/local/generate_s
 include { SV_PLOT as SV_PLOT_CUTESV          } from '../modules/local/generate_sv_plots/main.nf'
 include { merge_sv                           } from '../subworkflows/local/merge_sv.nf'
 include { SVANNA_PRIORITIZE                  } from '../modules/local/SvAnna/main.nf'
+include { VCF_ANNOTATE_ANNOTSV               } from '../subworkflows/local/vcf_annotate_annotsv/main.nf'
 
 // SNV calling and processing subworkflows
 include { call_snv                           } from '../subworkflows/local/call_snv'
@@ -550,7 +551,7 @@ if (params.sv) {
     ================================================================================
     */
 
-    if (params.annotate_sv) {
+    if (params.annotate_sv && params.sv_annotator == "svanna") {
         // Filter samplesheet to only include samples with HPO terms
         ch_samplesheet_with_hpo = ch_samplesheet
             .filter { meta, data ->
@@ -582,6 +583,20 @@ if (params.sv) {
             ch_sv_vcf_for_annotation.map { meta, vcf, hpo_terms -> hpo_terms }
         )
         ch_versions = ch_versions.mix(SVANNA_PRIORITIZE.out.versions)
+    }
+
+    if (params.annotate_sv && params.sv_annotator == "annotsv") {
+        ch_sv_vcf_for_annotation = ch_sv_vcf_final
+            .map { meta, vcf -> [meta, vcf, [], [] ] }
+
+        // TEMP: Reuse SVanna_db param
+        VCF_ANNOTATE_ANNOTSV(
+            ch_sv_vcf_for_annotation,
+            tuple([:], params.svanna_db),
+            [[:], []],
+            [[:], []],
+            [[:], []]
+        )
     }
 
     /*
