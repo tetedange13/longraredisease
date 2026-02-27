@@ -11,7 +11,7 @@ process KNOTANNOTSV {
     tuple val(meta), path(annotsv_tsv)
 
     output:
-    tuple val(meta), path("*.html"), emit: outHtml
+    tuple val(meta), path("*.html"), emit: html
     path "versions.yml"            , emit: versions
 
     when:
@@ -19,17 +19,17 @@ process KNOTANNOTSV {
 
     script:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
-    def knotVersion = 'v1.1.15'
+    def prefix = task.ext.prefix ?: "" // For knotAnnotSV, this a true prefix
+    def knotVersion = 'v1.1.5' // CHANGE when UPDATE
     // TODO felix: Allow Excel output
     """
     git clone https://github.com/mobidic/knotAnnotSV.git --branch $knotVersion --single-branch
 
     perl knotAnnotSV/knotAnnotSV.pl \\
-        $args \\
+        ${args} \\
         --configFile knotAnnotSV/config_AnnotSV.yaml \\
         --outPrefix ${prefix} \\
-        --annotSVfile
+        --annotSVfile ${annotsv_tsv}
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
@@ -39,11 +39,13 @@ process KNOTANNOTSV {
 
     stub:
     def args = task.ext.args ?: ''
-    def prefix = task.ext.prefix ?: "${meta.id}"
+    def prefix = task.ext.prefix ?: "" // For knotAnnotSV, this a true prefix
+    def knotVersion = 'v1.1.5' // CHANGE when UPDATE
     """
     echo $args
     
-    touch knot_${prefix}.html
+    touch ${prefix}_${meta.id}.html
+    touch ${prefix}_${meta.id}.xlsx
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
