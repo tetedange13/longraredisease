@@ -23,7 +23,7 @@ process KNOTANNOTSV {
     def knotVersion = 'v1.1.5' // CHANGE when UPDATE
     // TODO felix: Allow Excel output
     """
-    git clone https://github.com/mobidic/knotAnnotSV.git --branch $knotVersion --single-branch
+    git clone https://github.com/mobidic/knotAnnotSV.git --branch ${knotVersion} --single-branch
 
     perl knotAnnotSV/knotAnnotSV.pl \\
         ${args} \\
@@ -33,7 +33,7 @@ process KNOTANNOTSV {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        knotAnnotSV: \$(echo $knotVersion)
+        knotAnnotSV: \$(echo ${knotVersion})
     END_VERSIONS
     """
 
@@ -49,7 +49,7 @@ process KNOTANNOTSV {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        knotAnnotSV: \$(echo $knotVersion)
+        knotAnnotSV: \$(echo ${knotVersion})
     END_VERSIONS
     """
 }
