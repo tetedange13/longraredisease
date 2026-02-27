@@ -600,7 +600,8 @@ if (params.sv) {
             params.svannot_db,
             [[:], []],
             [[:], []],
-            [[:], []]
+            [[:], []],
+            false
         )
     }
 
