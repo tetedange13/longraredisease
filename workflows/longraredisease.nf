@@ -572,27 +572,32 @@ if (params.sv) {
             }
 
         // Set up SvAnna database
-        ch_svanna_db = Channel
-            .fromPath(params.svanna_db, checkIfExists: true)
+        ch_svannot_db = Channel
+            .fromPath(params.svannot_db, checkIfExists: true)
             .first()
 
         // Run SvAnna prioritization
         SVANNA_PRIORITIZE(
             ch_sv_vcf_for_annotation.map { meta, vcf, hpo_terms -> [meta, vcf] },
-            ch_svanna_db,
+            ch_svannot_db,
             ch_sv_vcf_for_annotation.map { meta, vcf, hpo_terms -> hpo_terms }
         )
         ch_versions = ch_versions.mix(SVANNA_PRIORITIZE.out.versions)
     }
 
+    /*
+    ================================================================================
+                            SV ANNOTATION WITH ANNOTSV
+    ================================================================================
+    */
+
     if (params.annotate_sv && params.sv_annotator == "annotsv") {
         ch_sv_vcf_for_annotation = ch_sv_vcf_final
             .map { meta, vcf -> [meta, vcf, [], [] ] }
 
-        // TEMP: Reuse SVanna_db param
         VCF_ANNOTATE_ANNOTSV(
             ch_sv_vcf_for_annotation,
-            params.svanna_db,
+            params.svannot_db,
             [[:], []],
             [[:], []],
             [[:], []]

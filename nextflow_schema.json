@@ -223,12 +223,12 @@
             "title": "SV Annotation",
             "type": "object",
             "fa_icon": "fas fa-tags",
-            "description": "Options for SV annotation with SvAnna.",
+            "description": "Options for SV annotation.",
             "properties": {
-                "svanna_db": {
+                "svannot_db": {
                     "type": "string",
                     "format": "directory-path",
-                    "description": "Path to the SvAnna database directory.",
+                    "description": "Path to the SV_annotator database directory (SVanna or AnnotSV).",
                     "fa_icon": "fas fa-database"
                 },
                 "output_format": {
