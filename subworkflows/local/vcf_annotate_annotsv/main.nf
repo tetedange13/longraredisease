@@ -1,5 +1,6 @@
-include { ANNOTSV_ANNOTSV } from '../../../modules/nf-core/annotsv/annotsv/main.nf'
-include { KNOTANNOTSV     } from '../../../modules/local/knotannotsv/main.nf'
+include { ANNOTSV_INSTALLANNOTATIONS } from '../../../modules/nf-core/annotsv/installannotations/main'
+include { ANNOTSV_ANNOTSV            } from '../../../modules/nf-core/annotsv/annotsv/main'
+include { KNOTANNOTSV                } from '../../../modules/local/knotannotsv/main'
 
 workflow VCF_ANNOTATE_ANNOTSV {
 
@@ -12,9 +13,15 @@ workflow VCF_ANNOTATE_ANNOTSV {
     knot_out_xl              // boolean(knot_out_xl)
 
     main:
+    if (!annotations) {
+        ANNOTSV_INSTALLANNOTATIONS()
+    }
+
+    annotsv_cache = annotations ? tuple([:], annotations) : ANNOTSV_INSTALLANNOTATIONS.out.annotations.map { annot -> [[:], annot] }
+
     ANNOTSV_ANNOTSV(
         input,
-        tuple([:], annotations),
+        annotsv_cache,
         candidate_genes,
         false_positive_snv,
         gene_transcripts

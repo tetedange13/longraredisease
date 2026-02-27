@@ -16,7 +16,10 @@ process ANNOTSV_INSTALLANNOTATIONS {
 
     script:
     """
-    TAG="\${ANNOTSV_TAG:-\$(AnnotSV --version 2>/dev/null | sed 's/AnnotSV //' || true)}"
+    #TAG="\${ANNOTSV_TAG:-\$(AnnotSV --version 2>/dev/null | sed 's/AnnotSV //' || true)}"
+    # [REMOVE ME for contrib] Shunt TAG definition from AnnotSV version
+    set -x
+    TAG=3.4.6
 
     # try v-prefixed tag first (skip if TAG is master or already v-prefixed)
     if [[ "\$TAG" != "master" && "\$TAG" != v* ]] && INSTALL_annotations.sh "v\$TAG"; then
