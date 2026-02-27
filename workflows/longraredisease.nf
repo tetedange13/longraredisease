@@ -592,7 +592,7 @@ if (params.sv) {
         // TEMP: Reuse SVanna_db param
         VCF_ANNOTATE_ANNOTSV(
             ch_sv_vcf_for_annotation,
-            tuple([:], params.svanna_db),
+            params.svanna_db,
             [[:], []],
             [[:], []],
             [[:], []]
