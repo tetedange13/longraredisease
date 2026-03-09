@@ -22,11 +22,11 @@ process KNOTANNOTSV {
     script:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "" // For knotAnnotSV, this a true prefix
-    def knotVersion = 'v1.1.5' // CHANGE when UPDATE
+    def knot_version = 'v1.1.5' // CHANGE when UPDATE
     def knot_script = knot_out_xl ? 'knotAnnotSV2XL.pl' : 'knotAnnotSV.pl'
     // TODO felix: Allow Excel output
     """
-    git clone https://github.com/mobidic/knotAnnotSV.git --branch ${knotVersion} --single-branch
+    git clone https://github.com/mobidic/knotAnnotSV.git --branch ${knot_version} --single-branch
 
     perl knotAnnotSV/${knot_script} \\
         ${args} \\
@@ -36,14 +36,14 @@ process KNOTANNOTSV {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        knotAnnotSV: \$(echo ${knotVersion})
+        knotAnnotSV: \$(echo ${knot_version})
     END_VERSIONS
     """
 
     stub:
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "" // For knotAnnotSV, this a true prefix
-    def knotVersion = 'v1.1.5' // CHANGE when UPDATE
+    def knot_version = 'v1.1.5' // CHANGE when UPDATE
     """
     echo $args
     
@@ -52,7 +52,7 @@ process KNOTANNOTSV {
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
-        knotAnnotSV: \$(echo ${knotVersion})
+        knotAnnotSV: \$(echo ${knot_version})
     END_VERSIONS
     """
 }
