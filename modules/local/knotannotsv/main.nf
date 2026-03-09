@@ -23,12 +23,12 @@ process KNOTANNOTSV {
     def args = task.ext.args ?: ''
     def prefix = task.ext.prefix ?: "" // For knotAnnotSV, this a true prefix
     def knotVersion = 'v1.1.5' // CHANGE when UPDATE
-    def knot_script = knot_out_xl ? 'knotAnnotSV/knotAnnotSV2XL.pl' : 'knotAnnotSV/knotAnnotSV.pl'
+    def knot_script = knot_out_xl ? 'knotAnnotSV2XL.pl' : 'knotAnnotSV.pl'
     // TODO felix: Allow Excel output
     """
     git clone https://github.com/mobidic/knotAnnotSV.git --branch ${knotVersion} --single-branch
 
-    perl ${knot_script} \\
+    perl knotAnnotSV/${knot_script} \\
         ${args} \\
         --configFile knotAnnotSV/config_AnnotSV.yaml \\
         --outPrefix ${prefix} \\
