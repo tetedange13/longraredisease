@@ -1,8 +1,8 @@
-nextflow_process {
+nextflow_workflow {
 
     config "./nextflow.config"
 
-    name "Test Subworkflow VCF_ANNOTATE_ANNOTSV
+    name "Test Subworkflow VCF_ANNOTATE_ANNOTSV"
     script "../main.nf"
     workflow "VCF_ANNOTATE_ANNOTSV"
 
@@ -11,6 +11,7 @@ nextflow_process {
     tag "subworkflows/vcf_annotate_annotsv"
     tag "annotsv"
     tag "annotsv/annotsv"
+    tag "knotannotsv"
 
     test("homo_sapiens - sv_vcf, sv_tbi, snv_vcf, annotations - stub") {
 
@@ -26,8 +27,7 @@ nextflow_process {
                     file(params.modules_testdata_base_path + "genomics/homo_sapiens/illumina/gatk/haplotypecaller_calls/test2_haplotc.vcf.gz")
                 ]
                 input[1] = [
-                    [ id:'annotations' ],
-                    []
+                    file('annotations_dir', checkIfExists: false)
                 ]
                 input[2] = Channel.of('GENE1', 'GENE2', 'GENE3')
                     .collectFile(name:'gene_candidates.txt')
@@ -39,17 +39,18 @@ nextflow_process {
                 input[4] = Channel.of('GENE1 GENE2 GENE3')
                     .collectFile(name:'gene_transcripts.txt')
                     .map { [[ id:'gene_transcripts'], it] }
+                input[5] = [
+                    false
+                ]
                 """
+
             }
         }
 
         then {
-            assert workflow.success
             assertAll(
-                { assert snapshot(
-                    workflow.out.reports,
-                    workflow.out.vcf_tbi
-                ).match() }
+                { assert workflow.success },
+                { assert snapshot(workflow.out).match() }
             )
         }
     }
