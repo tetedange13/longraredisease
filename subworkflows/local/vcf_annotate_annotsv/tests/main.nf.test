@@ -1,0 +1,56 @@
+nextflow_process {
+
+    config "./nextflow.config"
+
+    name "Test Subworkflow VCF_ANNOTATE_ANNOTSV
+    script "../main.nf"
+    workflow "VCF_ANNOTATE_ANNOTSV"
+
+    tag "subworkflow"
+    tag "subworkflows_nfcore"
+    tag "subworkflows/vcf_annotate_annotsv"
+    tag "annotsv"
+    tag "annotsv/annotsv"
+
+    test("homo_sapiens - sv_vcf, sv_tbi, snv_vcf, annotations - stub") {
+
+        options "-stub"
+
+        when {
+            workflow {
+                """
+                input[0] = [
+                    [ id:'test' ],
+                    file(params.modules_testdata_base_path + "genomics/homo_sapiens/illumina/vcf/sv_query.vcf.gz"),
+                    file(params.modules_testdata_base_path + "genomics/homo_sapiens/illumina/vcf/sv_query.vcf.gz.tbi"),
+                    file(params.modules_testdata_base_path + "genomics/homo_sapiens/illumina/gatk/haplotypecaller_calls/test2_haplotc.vcf.gz")
+                ]
+                input[1] = [
+                    [ id:'annotations' ],
+                    []
+                ]
+                input[2] = Channel.of('GENE1', 'GENE2', 'GENE3')
+                    .collectFile(name:'gene_candidates.txt')
+                    .map { [[ id:'genes' ], it] }
+                input[3] = [
+                    [ id:'false_positives' ],
+                    file(params.modules_testdata_base_path + "genomics/homo_sapiens/illumina/gatk/haplotypecaller_calls/test_haplotcaller.cnn.vcf.gz")
+                ]
+                input[4] = Channel.of('GENE1 GENE2 GENE3')
+                    .collectFile(name:'gene_transcripts.txt')
+                    .map { [[ id:'gene_transcripts'], it] }
+                """
+            }
+        }
+
+        then {
+            assert workflow.success
+            assertAll(
+                { assert snapshot(
+                    workflow.out.reports,
+                    workflow.out.vcf_tbi
+                ).match() }
+            )
+        }
+    }
+}
