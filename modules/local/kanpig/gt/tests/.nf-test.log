@@ -1,0 +1,8 @@
+juin-24 17:34:10.196 [main] INFO  com.askimed.nf.test.App - nf-test 0.9.5
+juin-24 17:34:10.244 [main] INFO  com.askimed.nf.test.App - Arguments: [test, --profile, singularity, modules/nf-core/kanpig/gt/]
+juin-24 17:34:12.718 [main] INFO  com.askimed.nf.test.App - Nextflow Version: 26.03.2
+juin-24 17:34:12.729 [main] WARN  com.askimed.nf.test.commands.RunTestsCommand - No nf-test config file found.
+juin-24 17:34:12.781 [main] INFO  com.askimed.nf.test.lang.dependencies.DependencyResolver - Loaded 2 files from directory /data/work/CHUUMI/felix/pipelines/modules/modules/nf-core/kanpig/gt/tests in 0.031 sec
+juin-24 17:34:12.787 [main] INFO  com.askimed.nf.test.lang.dependencies.DependencyResolver - Found 0 files containing tests.
+juin-24 17:34:12.788 [main] DEBUG com.askimed.nf.test.lang.dependencies.DependencyResolver - Found files: []
+juin-24 17:34:12.797 [main] INFO  com.askimed.nf.test.commands.RunTestsCommand - Found 0 tests to execute.

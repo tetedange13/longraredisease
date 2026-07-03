@@ -74,7 +74,14 @@ include { ANNOTATE_SV                        } from '../subworkflows/local/annot
 include { FILTER_SV  as FILTER_SV_CUTESV     } from '../subworkflows/local/filter_sv/main.nf'
 include { GUNZIP as GUNZIP_SVIM              } from '../modules/nf-core/gunzip/main.nf'
 include { GUNZIP as GUNZIP_CUTESV            } from '../modules/nf-core/gunzip/main.nf'
+include { GUNZIP as GUNZIP_DYSGU             } from '../modules/nf-core/gunzip/main.nf'
+include { GUNZIP as GUNZIP_DELLY             } from '../modules/nf-core/gunzip/main.nf'
+include { GUNZIP as GUNZIP_SEVERUS           } from '../modules/nf-core/gunzip/main.nf'
+include { GUNZIP as GUNZIP_KLED              } from '../modules/nf-core/gunzip/main.nf'
 include { MERGE_SV                           } from '../subworkflows/local/merge_sv/main.nf'
+include { GAWK as GENOTYPE_MERGED_SV         } from '../modules/nf-core/gawk/main.nf'
+include { BCFTOOLS_FIXSORT as BCFTOOLS_SORT_GENOTYPED } from '../modules/local/bcftools/fixsort/main.nf'
+
 
 include { UNIFY_VCF                          } from '../subworkflows/local/unify_vcf/main.nf'
 include { ANNOTATE_UNIFIED                   } from '../subworkflows/local/annotate_unified/main.nf'
@@ -553,6 +560,10 @@ workflow LONGRAREDISEASE {
 
         ch_sv_vcf_final = CALL_SV.out.sniffles_vcf
         ch_svim_vcf = CALL_SV.out.svim_vcf
+        ch_dysgu_vcf = CALL_SV.out.dysgu_vcf
+        ch_delly_vcf = CALL_SV.out.delly_vcf
+        ch_severus_vcf = CALL_SV.out.severus_vcf
+        ch_kled_vcf = CALL_SV.out.kled_vcf
         ch_versions = ch_versions.mix(CALL_SV.out.versions)
 
         if (params.filter_pass_sv) {
@@ -773,11 +784,14 @@ workflow LONGRAREDISEASE {
             ch_cutesv_vcf = FILTER_SV_CUTESV.out.ch_vcf_tbi.map { meta, vcf, tbi -> [meta, vcf] }
 
             }
+
         // Jasmine requires unzipped VCFs
-
         GUNZIP_SVIM(ch_svim_vcf)
-
         GUNZIP_CUTESV(ch_cutesv_vcf)
+        GUNZIP_DYSGU(ch_dysgu_vcf)
+        GUNZIP_DELLY(ch_delly_vcf)
+        GUNZIP_SEVERUS(ch_severus_vcf)
+        GUNZIP_KLED(ch_kled_vcf)
 
         ch_versions = ch_versions.mix(GUNZIP_SVIM.out.versions)
         ch_versions = ch_versions.mix(GUNZIP_CUTESV.out.versions)
@@ -793,8 +807,24 @@ workflow LONGRAREDISEASE {
                 GUNZIP_CUTESV.out.gunzip.map { meta, vcf -> [[id: meta.id], vcf] },
                 by: 0
             )
-            .map { sample_key, sniffles_vcf, svim_vcf, cutesv_vcf ->
-                [sample_key, [sniffles_vcf, svim_vcf, cutesv_vcf]]
+            .join(
+                GUNZIP_DYSGU.out.gunzip.map { meta, vcf -> [[id: meta.id], vcf] },
+                by: 0
+            )
+            .join(
+                GUNZIP_SEVERUS.out.gunzip.map { meta, vcf -> [[id: meta.id], vcf] },
+                by: 0
+            )
+            .join(
+                GUNZIP_DELLY.out.gunzip.map { meta, vcf -> [[id: meta.id], vcf] },
+                by: 0
+            )
+            .join(
+                GUNZIP_KLED.out.gunzip.map { meta, vcf -> [[id: meta.id], vcf] },
+                by: 0
+            )
+            .map { sample_key, sniffles_vcf, svim_vcf, cutesv_vcf, dysgu_vcf, severus_vcf, delly_vcf, kled_vcf ->
+                [sample_key, [sniffles_vcf, svim_vcf, cutesv_vcf, dysgu_vcf, severus_vcf, delly_vcf, kled_vcf]]
             }
             .join(
                 ch_input_bam.map { meta, bam, bai -> [[id: meta.id], bam, bai] },
@@ -812,6 +842,21 @@ workflow LONGRAREDISEASE {
             ch_fai,
             []
         )
+        // Genotype merged_sv VCF (eg: with tool such as Kanpig)
+        MERGE_SV.out.intermediate_vcf
+            .join(
+                ch_input_bam.map { meta, bam, bai -> [[id: meta.id], bam, bai] },
+                by: 0
+            )
+            .map { meta, vcf, bam, bam_index -> [ meta, vcf, [], bam, bam_index, [], [] ]}
+            .set { genotype_in }
+        GENOTYPE_MERGED_SV(
+            MERGE_SV.out.intermediate_vcf,
+            file("${projectDir}/bin/genotyper.awk"),
+            false,
+        )
+        BCFTOOLS_SORT_GENOTYPED(GENOTYPE_MERGED_SV.out.output)
+
 
         ch_versions = ch_versions.mix(MERGE_SV.out.versions)
 

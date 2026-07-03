@@ -1,0 +1,25 @@
+{
+    "kanpig - gt - vcf - stub": {
+        "content": [
+            {
+                "0": [
+                    
+                ],
+                "1": [
+                    
+                ],
+                "vcf": [
+                    
+                ],
+                "versions_kanpig": [
+                    
+                ]
+            }
+        ],
+        "timestamp": "2026-06-24T14:38:27.846483977",
+        "meta": {
+            "nf-test": "0.9.5",
+            "nextflow": "26.03.2"
+        }
+    }
+}

@@ -80,9 +80,25 @@
                         "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
                         "installed_by": ["modules"]
                     },
+                    "delly/call": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
+                        "installed_by": ["modules"],
+                        "patch": "modules/nf-core/delly/call/delly-call.diff"
+                    },
+                    "dysgu/run": {
+                        "branch": "master",
+                        "git_sha": "7891b93f490b306f29a099355a90299386181488",
+                        "installed_by": ["modules"]
+                    },
                     "fastqc": {
                         "branch": "master",
                         "git_sha": "41dfa3f7c0ffabb96a6a813fe321c6d1cc5b6e46",
+                        "installed_by": ["modules"]
+                    },
+                    "gawk": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
                     "glnexus": {
@@ -103,6 +119,11 @@
                     "jasminesv": {
                         "branch": "master",
                         "git_sha": "a70dc7ed7cec3563561b19dec48277a43aad4dbf",
+                        "installed_by": ["modules"]
+                    },
+                    "kled": {
+                        "branch": "master",
+                        "git_sha": "24f94e605b24cffdb0f545333ba9c031b003c97e",
                         "installed_by": ["modules"]
                     },
                     "longphase/haplotag": {
@@ -193,6 +214,11 @@
                     "samtools/view": {
                         "branch": "master",
                         "git_sha": "c8be52dba1166c678e74cda9c3a3c221635c8bb1",
+                        "installed_by": ["modules"]
+                    },
+                    "severus": {
+                        "branch": "master",
+                        "git_sha": "6d46786420b4d7bc88eba026eb389c0c5535d120",
                         "installed_by": ["modules"]
                     },
                     "sniffles": {

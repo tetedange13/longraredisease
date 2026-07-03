@@ -5,11 +5,23 @@ include { SNIFFLES_GENERATE_PLOTS                    } from '../../../modules/lo
 // Run svim SV calling
 include { SVIM_ALIGNMENT                      } from '../../../modules/nf-core/svim/alignment/main.nf'
 include { BCFTOOLS_SORT as BCFTOOLS_SORT_SVIM } from '../../../modules/nf-core/bcftools/sort/main.nf'
+include { BCFTOOLS_FILTER as BCFTOOLS_FILTER_SVIM } from '../../../modules/nf-core/bcftools/filter/main.nf'
 // Run cutesv SV calling
 include { CUTESV                                } from '../../../modules/nf-core/cutesv/main.nf'
 include { RE2SUPPORT                            } from '../../../modules/local/fix_header_sv/cutesv/main.nf'
 include { BCFTOOLS_SORT as BCFTOOLS_SORT_CUTESV } from '../../../modules/nf-core/bcftools/sort/main.nf'
 include { TABIX_TABIX as TABIX_CUTESV           } from '../../../modules/nf-core/tabix/tabix/main.nf'
+// Run dysgu SV calling
+include { DYSGU_RUN                             } from '../../../modules/nf-core/dysgu/run/main.nf'
+// Run severus SV calling
+include { SEVERUS                               } from '../../../modules/nf-core/severus/main.nf'
+include { TABIX_BGZIPTABIX as TABIX_SEVERUS     } from '../../../modules/nf-core/tabix/bgziptabix/main.nf'
+// Run delly SV calling
+include { DELLY_CALL                            } from '../../../modules/nf-core/delly/call/main.nf'
+// Run kled SV calling
+include { KLED                                  } from '../../../modules/nf-core/kled/main.nf'
+include { TABIX_BGZIPTABIX as TABIX_KLED        } from '../../../modules/nf-core/tabix/bgziptabix/main.nf'
+
 workflow CALL_SV {
 
     take:
@@ -43,6 +55,56 @@ workflow CALL_SV {
     SNIFFLES_GENERATE_PLOTS(GUNZIP_SNIFFLES_PLOT.out.gunzip)
     ch_sniffles_plots = SNIFFLES_GENERATE_PLOTS.out.plot_dir
 
+    // ========================================
+    // DYSGU
+    // ========================================
+
+    DYSGU_RUN(
+        input,
+        fasta,
+        [[id: 'fai'], []],
+        [[id: 'sites'], []],
+        [[id: 'bed'], []],
+        [[id: 'search_bed'], []],
+        [[id: 'exclude_bed'], []]
+    )
+
+    // ========================================
+    // SEVERUS
+    // ========================================
+
+    input
+        .map { meta, bam, bai -> [meta, bam, bai, [], [], []]}
+        .set { severus_in }
+    SEVERUS(
+        severus_in,
+        tandem_file,
+    )
+    TABIX_SEVERUS(SEVERUS.out.all_vcf)
+
+    // ========================================
+    // DELLY
+    // ========================================
+
+    input
+        .map { meta, bam, bai -> [meta, bam, bai, [], [], []] }
+        .set { delly_in }
+    DELLY_CALL(
+        delly_in,
+        fasta,
+        [[id: 'fai'], []],
+        'vcf'
+    )
+
+    // ========================================
+    // KLED
+    // ========================================
+
+    KLED(
+        input,
+        fasta
+    )
+    TABIX_KLED(KLED.out.vcf)
 
     if (merge_sv || run_svim) {
 
@@ -51,7 +113,9 @@ workflow CALL_SV {
     // ========================================
 
         SVIM_ALIGNMENT(input, fasta)
-        BCFTOOLS_SORT_SVIM(SVIM_ALIGNMENT.out.vcf)
+        // 'SUPPORT>=2' defined in conf
+        BCFTOOLS_FILTER_SVIM (SVIM_ALIGNMENT.out.vcf.map{ meta, vcf -> [ meta, vcf, [] ]})
+        BCFTOOLS_SORT_SVIM(BCFTOOLS_FILTER_SVIM.out.vcf)
 
         ch_svim_vcf = BCFTOOLS_SORT_SVIM.out.vcf
         ch_svim_tbi = BCFTOOLS_SORT_SVIM.out.tbi
@@ -92,6 +156,10 @@ workflow CALL_SV {
     sniffles_unzipped_vcf = GUNZIP_SNIFFLES_PLOT.out.gunzip
     svim_vcf_tbi     = ch_svim_vcf_tbi       // channel: [ meta, vcf.gz, vcf.gz.tbi ]
     svim_vcf         = ch_svim_vcf           // channel: [ meta, vcf.gz ]
+    dysgu_vcf        = DYSGU_RUN.out.vcf     // channel: [ meta, vcf.gz ]
+    severus_vcf      = TABIX_SEVERUS.out.gz_tbi.map { meta, gz, tbi -> [meta, gz] }   // channel: [ meta, vcf.gz ]
+    delly_vcf        = DELLY_CALL.out.bcf    // channel: [ meta, vcf.gz ]
+    kled_vcf         = TABIX_KLED.out.gz_tbi.map { meta, gz, tbi -> [meta, gz] }   // channel: [ meta, vcf.gz ]
     cutesv_vcf_tbi   = ch_cutesv_vcf_tbi     // channel: [ meta, vcf.gz, vcf.gz.tbi ]
     cutesv_vcf       = ch_cutesv_vcf         // channel: [ meta, vcf.gz ]
     sniffles_plots   = ch_sniffles_plots     // channel: [ meta, plot_dir ]
