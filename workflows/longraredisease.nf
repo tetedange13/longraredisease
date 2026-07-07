@@ -71,6 +71,7 @@ include { CALL_CNV                           } from '../subworkflows/local/call_
 // Merge SV - multiple callers
 include { FILTER_SV  as FILTER_SV_SVIM       } from '../subworkflows/local/filter_sv/main.nf'
 include { ANNOTATE_SV                        } from '../subworkflows/local/annotate_sv/main.nf'
+include { ANNOTATE_SV as ANNOTATE_MERGED_SV  } from '../subworkflows/local/annotate_sv/main.nf'
 include { FILTER_SV  as FILTER_SV_CUTESV     } from '../subworkflows/local/filter_sv/main.nf'
 include { GUNZIP as GUNZIP_SVIM              } from '../modules/nf-core/gunzip/main.nf'
 include { GUNZIP as GUNZIP_CUTESV            } from '../modules/nf-core/gunzip/main.nf'
@@ -857,6 +858,18 @@ workflow LONGRAREDISEASE {
         )
         BCFTOOLS_SORT_GENOTYPED(GENOTYPE_MERGED_SV.out.output)
 
+        if (params.annotate_sv) {
+            //Annotate merged_VCF
+            ANNOTATE_MERGED_SV(
+                ch_samplesheet,
+                GENOTYPE_MERGED_SV.out.output,
+                GUNZIP_DYSGU.out.gunzip.map { meta, vcf -> [[id: meta.id], vcf] },
+                ch_snv_vcf,
+                [],
+                [],
+                []
+            )
+        }
 
         ch_versions = ch_versions.mix(MERGE_SV.out.versions)
 
