@@ -27,12 +27,14 @@ process FIX_HEADER_JASMINE {
         zcat "${vcf}" | awk 'BEGIN{FS=OFS="\\t"}
             /^#/ {print; next}
             \$4=="." { \$4="N" }
+            \$2<0 { \$2=0 }
             {print}
         ' > __tmp.refN.vcf
     else
         awk 'BEGIN{FS=OFS="\\t"}
             /^#/ {print; next}
             \$4=="." { \$4="N" }
+            \$2<0 { \$2=0 }
             {print}
         ' "${vcf}" > __tmp.refN.vcf
     fi

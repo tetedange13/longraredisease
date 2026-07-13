@@ -33,7 +33,8 @@ process BCFTOOLS_FIXSORT {
     # MEMO: Have to 'force' annotate, otherwise stop cuz not declared in header:
     #bcftools annotate --force -x \$(cat to_remove.txt | tr '\\n' ',' | sed 's/,\$//') -Ob -o fixed.bcf
 
-    # FIXME: If some 'POS<0', bellow crash and error goes to 'to_fix.txt'
+    # MEMO: If some 'POS<0', bellow crash and error goes to 'to_fix.txt'
+    #       Handled by upstream step 'FIX_HEADER_JASMINE' and/or 'clean_merged_sv'
     bcftools view $vcf > /dev/null 2> to_fix.txt
 
     if [ -s to_fix.txt ]; then
