@@ -18,13 +18,13 @@ BEGIN {
 }
 /^##INFO=<ID=SUPP,/ {
     print "##INFO=<ID=SUPP,Number=1,Type=Integer,Description=\"Number of samples supporting the variant\">"
-    print "##FILTER=<ID=1,Number=1,Type=Integer,Description=\"1 caller supporting the variant\">"
-    print "##FILTER=<ID=2,Number=1,Type=Integer,Description=\"2 callers supporting the variant\">"
-    print "##FILTER=<ID=3,Number=1,Type=Integer,Description=\"3 callers supporting the variant\">"
-    print "##FILTER=<ID=4,Number=1,Type=Integer,Description=\"4 callers supporting the variant\">"
-    print "##FILTER=<ID=5,Number=1,Type=Integer,Description=\"5 callers supporting the variant\">"
-    print "##FILTER=<ID=6,Number=1,Type=Integer,Description=\"6 callers supporting the variant\">"
-    print "##FILTER=<ID=7,Number=1,Type=Integer,Description=\"7 callers supporting the variant\">"
+    print "##FILTER=<ID=1,Description=\"1 caller supporting the variant\">"
+    print "##FILTER=<ID=2,Description=\"2 callers supporting the variant\">"
+    print "##FILTER=<ID=3,Description=\"3 callers supporting the variant\">"
+    print "##FILTER=<ID=4,Description=\"4 callers supporting the variant\">"
+    print "##FILTER=<ID=5,Description=\"5 callers supporting the variant\">"
+    print "##FILTER=<ID=6,Description=\"6 callers supporting the variant\">"
+    print "##FILTER=<ID=7,Description=\"7 callers supporting the variant\">"
     next
 }
 /^#/ { print; next }
