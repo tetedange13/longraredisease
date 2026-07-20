@@ -8,7 +8,7 @@ include { BCFTOOLS_SORT as BCFTOOLS_SORT_SVIM } from '../../../modules/nf-core/b
 include { BCFTOOLS_FILTER as BCFTOOLS_FILTER_SVIM } from '../../../modules/nf-core/bcftools/filter/main.nf'
 // Run cutesv SV calling
 include { CUTESV                                } from '../../../modules/nf-core/cutesv/main.nf'
-include { RE2SUPPORT                            } from '../../../modules/local/fix_header_sv/cutesv/main.nf'
+include { FIX_HEADER_CUTESV                            } from '../../../modules/local/fix_header_sv/cutesv/main.nf'
 include { BCFTOOLS_SORT as BCFTOOLS_SORT_CUTESV } from '../../../modules/nf-core/bcftools/sort/main.nf'
 include { TABIX_TABIX as TABIX_CUTESV           } from '../../../modules/nf-core/tabix/tabix/main.nf'
 // Run dysgu SV calling
@@ -127,8 +127,8 @@ workflow CALL_SV {
     // ========================================
         if (merge_sv) {
             CUTESV(input, fasta)
-            RE2SUPPORT(CUTESV.out.vcf)
-            BCFTOOLS_SORT_CUTESV(RE2SUPPORT.out.vcf)
+            FIX_HEADER_CUTESV(CUTESV.out.vcf)
+            BCFTOOLS_SORT_CUTESV(FIX_HEADER_CUTESV.out.vcf)
             TABIX_CUTESV(BCFTOOLS_SORT_CUTESV.out.vcf)
             ch_cutesv_vcf = BCFTOOLS_SORT_CUTESV.out.vcf
             ch_cutesv_tbi = TABIX_CUTESV.out.tbi
