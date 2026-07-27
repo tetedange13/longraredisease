@@ -64,7 +64,7 @@ workflow ANNOTATE_SV {
     )
 
     KNOTANNOTSV_SNIFFLES (
-        ANNOTSV_SNIFFLES.out.tsv.map { meta, tsv -> [meta, tsv, false] }
+        ANNOTSV_SNIFFLES.out.tsv.map { meta, tsv -> [meta, tsv, true] }
     )
 
     if (params.run_svim && params.annotate_svim){
