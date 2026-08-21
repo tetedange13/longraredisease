@@ -4,6 +4,9 @@ include { ANNOTSV_ANNOTSV as ANNOTSV_SNIFFLES         } from '../../../modules/n
 include { ANNOTSV_ANNOTSV as ANNOTSV_SVIM         } from '../../../modules/nf-core/annotsv/annotsv/main.nf'
 include { KNOTANNOTSV as KNOTANNOTSV_SNIFFLES } from '../../../modules/nf-core/knotannotsv/main.nf'
 include { KNOTANNOTSV as KNOTANNOTSV_SVIM     } from '../../../modules/nf-core/knotannotsv/main.nf'
+include { UNTAR as VCF2CIRCOS_INSTALLANNOTATIONS } from '../../../modules/nf-core/untar/main'
+include { VCF2CIRCOS as VCF2CIRCOS_SNIFFLES   } from '../../../modules/local/vcf2circos/main.nf'
+include { VCF2CIRCOS as VCF2CIRCOS_SVIM       } from '../../../modules/local/vcf2circos/main.nf'
 
 workflow ANNOTATE_SV {
 
@@ -39,6 +42,7 @@ workflow ANNOTATE_SV {
     ch_candidate_genes = candidate_genes ? Channel.fromPath(candidate_genes).map{[[id:"candidate_genes"], it]}.collect() : Channel.value([[id:"empty"], []])
     ch_false_positive_snv = false_positive_snv ? Channel.fromPath(false_positive_snv).map{[[id:"false_positive"], it]}.collect() : Channel.value([[id:"empty"], []])
     ch_gene_transcripts = gene_transcripts ? Channel.fromPath(gene_transcripts).map{[[id:"transcripts"], it]}.collect() : Channel.value([[id:"empty"], []])
+    ch_vcf2circos_annotations = Channel.fromPath('https://www.lbgi.fr/~lamouche/vcf2circos/config_vcf2circos_29032023.tar.gz', checkIfExists: true)
 
     ch_annotate_input_sniffles = ch_sniffles_vcf
         .map { meta, vcf -> [meta.id, meta, vcf] }
@@ -67,6 +71,14 @@ workflow ANNOTATE_SV {
         ANNOTSV_SNIFFLES.out.tsv.map { meta, tsv -> [meta, tsv, true] }
     )
 
+    VCF2CIRCOS_INSTALLANNOTATIONS(ch_vcf2circos_annotations.map { ann -> [[id:"vcf2circos_ann"], ann] })
+
+    // ENH: Run on AnnotSV vcf (WARN: does not always exist)
+    VCF2CIRCOS_SNIFFLES (
+        ch_sniffles_vcf.map {meta, vcf -> [meta, vcf, [], 'html'] },
+        VCF2CIRCOS_INSTALLANNOTATIONS.out.untar
+    )
+
     if (params.run_svim && params.annotate_svim){
         ch_annotate_input_svim = ch_svim_vcf
         .map { meta, vcf -> [meta.id, meta, vcf] }
@@ -90,6 +102,11 @@ workflow ANNOTATE_SV {
 
         KNOTANNOTSV_SVIM (
             ANNOTSV_SVIM.out.tsv.map { meta, tsv -> [meta, tsv, false] }
+        )
+
+        VCF2CIRCOS_SVIM (
+            ch_svim_vcf.map {meta, vcf -> [meta, vcf, [], 'html'] },
+            VCF2CIRCOS_INSTALLANNOTATIONS.out.untar
         )
     }
 
