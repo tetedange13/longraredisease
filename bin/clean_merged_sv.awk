@@ -50,7 +50,7 @@ BEGIN {
             saved_supp = value
         }
     }
-    $2 = ($2<0) ? 0 : $2
+    $2 = ($2<0) ? 1 : $2
     $8 = (new_info == "") ? "." : new_info
     $3 = "."
     $7 = saved_supp
