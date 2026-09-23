@@ -42,6 +42,7 @@ include { SNIFFLES as SNIFFLES_UNPHASED      } from '../modules/nf-core/sniffles
 include { LONGPHASE_PHASE                    } from '../modules/nf-core/longphase/phase/main.nf'
 include { HAPLOTAG_BAM                       } from '../subworkflows/local/haplotag_bam/main.nf'
 include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_HAPLOTAG } from '../modules/nf-core/samtools/index/main'
+include { SAMTOOLS_VIEW as SAMTOOLS_CONVERT_HAPLOTAG  } from '../modules/nf-core/samtools/view/main'
 
 // SV calling
 include { CALL_SV                            } from '../subworkflows/local/call_sv/main.nf'
@@ -507,6 +508,14 @@ workflow LONGRAREDISEASE {
         ch_input_bam = HAPLOTAG_BAM.out.bam
         .join(SAMTOOLS_INDEX_HAPLOTAG.out.bai, by: 0)
         .map { meta, bam, bai -> tuple(meta, bam, bai) }
+
+        // BAM to CRAM conversion
+        SAMTOOLS_CONVERT_HAPLOTAG(
+            ch_input_bam,
+            ch_fasta,
+            [],
+            "crai",
+        )
 
         ch_versions = ch_versions.mix(SNIFFLES_UNPHASED.out.versions)
         ch_versions = ch_versions.mix(LONGPHASE_PHASE.out.versions)
