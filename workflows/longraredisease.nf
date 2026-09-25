@@ -319,10 +319,7 @@ workflow LONGRAREDISEASE {
 
 
         // Prepare input for nanoplot from FASTQ
-        ch_nanoplot = BAM2FASTQ.out.other
-            .map { meta, fastq_file ->
-                tuple(meta, fastq_file)
-            }
+        ch_nanoplot = ch_bam_files
 
     } else if (params.input_type == 'bam') {
         /*
