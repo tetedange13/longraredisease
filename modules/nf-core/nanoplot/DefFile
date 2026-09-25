@@ -1,0 +1,23 @@
+Bootstrap: docker
+From: alpine:3.22
+
+
+# ----------------------
+# Build
+# ----------------------
+
+%post
+
+  apk add --no-cache curl bash
+
+  curl -L "https://github.com/wdecoster/nanoplotrs/releases/download/v0.2.0/nanoplot-linux-musl" -o /bin/NanoPlot \
+    && chmod +x /bin/NanoPlot
+
+
+# ----------------------
+# Set up the environment
+# ----------------------
+
+%runscript
+
+  exec /bin/NanoPlot "$@"

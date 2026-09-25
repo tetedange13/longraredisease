@@ -1,11 +1,9 @@
 process NANOPLOT {
     tag "$meta.id"
-    label 'process_low'
+    label 'process_medium'
 
     conda "${moduleDir}/environment.yml"
-    container "${ workflow.containerEngine == 'singularity' && !task.ext.singularity_pull_docker_container ?
-        'https://depot.galaxyproject.org/singularity/nanoplot:1.46.1--pyhdfd78af_0' :
-        'biocontainers/nanoplot:1.46.1--pyhdfd78af_0' }"
+    container "/data/work/CHUUMI/felix/pipelines/singularity_img/nanoplot-rs_v0.2.0.img"
 
     input:
     tuple val(meta), path(ontfile)
@@ -13,7 +11,7 @@ process NANOPLOT {
     output:
     tuple val(meta), path("*.html")                , emit: html
     tuple val(meta), path("*.png") , optional: true, emit: png
-    tuple val(meta), path("*.txt")                 , emit: txt
+    tuple val(meta), path("*.tsv")                 , emit: txt
     path  "versions.yml"                           , emit: versions
 
     when:
@@ -21,13 +19,15 @@ process NANOPLOT {
 
     script:
     def args = task.ext.args ?: ''
+    def prefix = task.ext.prefix ?: "${meta.id}_"
     def input_file = ("$ontfile".endsWith(".fastq.gz") || "$ontfile".endsWith(".fq.gz")) ? "--fastq ${ontfile}" :
         ("$ontfile".endsWith(".txt")) ? "--summary ${ontfile}" : ''
     """
     NanoPlot \\
         $args \\
         -t $task.cpus \\
-        $input_file
+        --prefix $prefix \\
+        -i $ontfile
 
     cat <<-END_VERSIONS > versions.yml
     "${task.process}":
