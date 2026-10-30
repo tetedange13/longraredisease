@@ -599,7 +599,7 @@ workflow LONGRAREDISEASE {
             ch_samplesheet,
             ch_sv_vcf_final,
             ch_svim_vcf,
-            ch_snv_vcf,
+            params.snv ? ch_snv_vcf : Channel.empty(),
             [],
             [],
             []
@@ -829,7 +829,7 @@ workflow LONGRAREDISEASE {
                 ch_samplesheet,
                 GENOTYPE_MERGED_SV.out.output,
                 GUNZIP_DYSGU.out.gunzip.map { meta, vcf -> [[id: meta.id], vcf] },
-                ch_snv_vcf,
+                params.snv ? ch_snv_vcf : Channel.empty(),
                 [],
                 [],
                 []
