@@ -15,10 +15,10 @@ workflow MOSDEPTH_SUBWORKFLOW {
     ch_versions = Channel.empty()
 
     //
-    // MODULE: Run MOSDEPTH (always)
+    // MODULE: Run MOSDEPTH (always + without BED cuz '--by 1000' defined in 'modules.config')
     //
     MOSDEPTH (
-        bam_bai_bed,
+        bam_bai_bed.map {meta, bam, bai, _bed -> [meta, bam, bai, []] },
         fasta
     )
 
