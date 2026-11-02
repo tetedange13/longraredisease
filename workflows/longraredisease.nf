@@ -348,7 +348,7 @@ workflow LONGRAREDISEASE {
     ch_input_bam_bai_bed = ch_final_sorted_bam
         .join(ch_final_sorted_bai, by: 0)
         .map { meta, bam, bai ->
-            tuple(meta, bam, bai, [])
+            tuple(meta, bam, bai, params.targets_bed ? params.targets_bed : [])
         }
 
     // Prepare simplified BAM input channel for variant calling and methylation calling
