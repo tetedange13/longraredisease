@@ -45,6 +45,10 @@ process SPECTRE_CNVCALLER {
         --bin-size ${bin_size} \\
         ${args}
 
+    # FIX: If no CNV, Spectre produce VCF with excedent empty_line at the end
+    #      This crash downstream 'bcftools sort' -> Remove empty lines
+    sed --in-place=.bak '/^\$/d' ${meta.id}.vcf
+
     """
 
     stub:
