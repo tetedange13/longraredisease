@@ -703,28 +703,6 @@ workflow LONGRAREDISEASE {
         ch_str_vcf = channel.empty()
     }
 
-/*
-=======================================================================================
-                        COPY NUMBER VARIANT CALLING
-=======================================================================================
-*/
-
-    if (params.cnv) {
-        CALL_CNV(
-            ch_input_bam,
-            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.summary_txt : channel.empty(),
-            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_bed : channel.empty(),
-            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_csi : channel.empty(),
-            ch_snv_vcf,
-            ch_snv_phased_vcf,
-            ch_fasta
-        )
-
-        ch_cnv_vcf = CALL_CNV.out.vcf
-        ch_versions = ch_versions.mix(CALL_CNV.out.versions)
-    } else {
-        ch_cnv_vcf = channel.empty()
-    }
 
 /*
 ================================================================================
@@ -840,6 +818,30 @@ workflow LONGRAREDISEASE {
 
         // Set final SV VCF to merged result for the unify vcf if required
         ch_sv_vcf_final = MERGE_SV.out.vcf
+    }
+
+
+/*
+=======================================================================================
+                        COPY NUMBER VARIANT CALLING
+=======================================================================================
+*/
+
+    if (params.cnv) {
+        CALL_CNV(
+            ch_input_bam,
+            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.summary_txt : channel.empty(),
+            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_bed : channel.empty(),
+            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_csi : channel.empty(),
+            ch_snv_vcf.join(BCFTOOLS_SORT_GENOTYPED.out.vcf),
+            ch_snv_phased_vcf,
+            ch_fasta
+        )
+
+        ch_cnv_vcf = CALL_CNV.out.vcf
+        ch_versions = ch_versions.mix(CALL_CNV.out.versions)
+    } else {
+        ch_cnv_vcf = channel.empty()
     }
 
 

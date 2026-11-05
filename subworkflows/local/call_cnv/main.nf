@@ -5,6 +5,7 @@
 */
 
 include { SPECTRE_CNVCALLER                   } from '../../../modules/local/spectre/cnvcaller/main'
+include { WAKHAN                              } from '../../../modules/local/wakhan/main'
 include { BCFTOOLS_SORT as BCFTOOLS_SORT_SPECTRE } from '../../../modules/nf-core/bcftools/sort'
 include { HIFICNV                             } from '../../../modules/nf-core/hificnv/main'
 
@@ -14,7 +15,7 @@ workflow CALL_CNV {
     ch_mosdepth_summary     // channel: [meta, summary.txt] - can be empty
     ch_mosdepth_regions_bed // channel: [meta, regions.bed.gz] - can be empty
     ch_mosdepth_regions_csi // channel: [meta, regions.bed.gz.csi] - can be empty
-    ch_snv_vcf              // channel: [meta, vcf]
+    ch_snv_vcf              // channel: [meta, vcf, sv_vcf]
     ch_snv_phased_vcf       // channel: [meta, vcf] - for HiFiCNV MAF
     ch_fasta                // channel: [meta, fasta, fai]
 
@@ -103,7 +104,7 @@ workflow CALL_CNV {
 
             ch_spectre_input = ch_mosdepth_dir
                 .join(ch_snv_vcf)
-                .map { meta, summary, bed, csi, vcf -> [meta, summary, bed, csi, vcf] }
+                .map { meta, summary, bed, csi, vcf, _sv_vcf -> [meta, summary, bed, csi, vcf] }
 
             SPECTRE_CNVCALLER(
                 ch_spectre_input,
@@ -111,6 +112,17 @@ workflow CALL_CNV {
                 params.spectre_metadata,
                 params.spectre_blacklist,
                 params.spectre_bin_size ?: 1000
+            )
+
+            // Wakhan
+            ch_wakhan_input = ch_input_bam
+                .join(ch_snv_vcf)
+                .map { meta, bam, bai, vcf, sv_vcf -> [meta, bam, bai, [], [], vcf, sv_vcf] }
+
+            WAKHAN(
+                ch_wakhan_input,
+                ch_fasta,
+                [],
             )
         }
 
