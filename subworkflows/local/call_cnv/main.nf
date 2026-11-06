@@ -114,16 +114,18 @@ workflow CALL_CNV {
                 params.spectre_bin_size ?: 1000
             )
 
-            // Wakhan
-            ch_wakhan_input = ch_input_bam
-                .join(ch_snv_vcf)
-                .map { meta, bam, bai, vcf, sv_vcf -> [meta, bam, bai, [], [], vcf, sv_vcf] }
+            // Wakhan (require BAM + SNV_vcf + SV_vcf, all phased)
+            if (params.sv & params.haplotag_bam) {
+                ch_wakhan_input = ch_input_bam
+                    .join(ch_snv_vcf)
+                    .map { meta, bam, bai, vcf, sv_vcf -> [meta, bam, bai, [], [], vcf, sv_vcf] }
 
-            WAKHAN(
-                ch_wakhan_input,
-                ch_fasta,
-                [],
-            )
+                WAKHAN(
+                    ch_wakhan_input,
+                    ch_fasta,
+                    [],
+                )
+            }
         }
 
         // ch_versions = ch_versions.mix(SPECTRE_CNVCALLER.out.versions)

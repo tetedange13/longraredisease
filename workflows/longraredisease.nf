@@ -822,12 +822,22 @@ workflow LONGRAREDISEASE {
 */
 
     if (params.cnv) {
+        ch_cnv_snv = params.haplotag_bam ? LONGPHASE_PHASE.out.snv_vcf : ch_snv_vcf
+        // Add SV vcf for wakhan
+        // MEMO: HAS to be phased (no need to pass UNphased one)
+        ch_cnv_vcfs = ch_cnv_snv
+            .join(LONGPHASE_PHASE.out.sv_vcf)
+            .map { meta, snv_vcf, sv_vcf ->
+                def sv = sv_vcf ?: []
+                tuple(meta, snv_vcf, sv)
+            }
+
         CALL_CNV(
             ch_input_bam,
             params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.summary_txt : channel.empty(),
             params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_bed : channel.empty(),
             params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_csi : channel.empty(),
-            ch_snv_vcf.join(BCFTOOLS_SORT_GENOTYPED.out.vcf),
+            ch_cnv_vcfs,
             ch_snv_phased_vcf,
             ch_fasta
         )
