@@ -38,7 +38,6 @@ include { CALL_SNV                           } from '../subworkflows/local/call_
 include { ANNOTATE_SNV                       } from '../subworkflows/local/annotate_snv/main.nf'
 
 // Haplotag BAM
-include { SNIFFLES as SNIFFLES_UNPHASED      } from '../modules/nf-core/sniffles/main.nf'
 include { LONGPHASE_PHASE                    } from '../modules/nf-core/longphase/phase/main.nf'
 include { HAPLOTAG_BAM                       } from '../subworkflows/local/haplotag_bam/main.nf'
 include { SAMTOOLS_INDEX as SAMTOOLS_INDEX_HAPLOTAG } from '../modules/nf-core/samtools/index/main'
@@ -795,17 +794,9 @@ workflow LONGRAREDISEASE {
 
     if (params.haplotag_bam){
 
-        SNIFFLES_UNPHASED(
-            ch_input_bam,
-            ch_fasta,
-            ch_trf,
-            params.vcf_output,
-            params.snf_output
-        )
-
         ch_input_longphase = ch_input_bam  // [meta, bam, bai]
         .join(ch_snv_vcf, by: 0)
-        .join(SNIFFLES_UNPHASED.out.vcf, by: 0, remainder: true)
+        .join(CALL_SV.out.sniffles_vcf, by: 0, remainder: true)
         .map { meta, bam, bai, snv_vcf, sv_vcf ->
              def sv = sv_vcf ?: []
              tuple(meta, bam, bai, snv_vcf, sv, [])  // [] = no mod file
@@ -842,7 +833,6 @@ workflow LONGRAREDISEASE {
             "crai",
         )
 
-        ch_versions = ch_versions.mix(SNIFFLES_UNPHASED.out.versions)
         ch_versions = ch_versions.mix(LONGPHASE_PHASE.out.versions)
         ch_versions = ch_versions.mix(HAPLOTAG_BAM.out.versions)
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX_HAPLOTAG.out.versions)
