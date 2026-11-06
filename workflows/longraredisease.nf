@@ -826,7 +826,7 @@ workflow LONGRAREDISEASE {
         // Add SV vcf for wakhan
         // MEMO: HAS to be phased (no need to pass UNphased one)
         ch_cnv_vcfs = ch_cnv_snv
-            .join(LONGPHASE_PHASE.out.sv_vcf)
+            .join(params.haplotag_bam ? LONGPHASE_PHASE.out.sv_vcf : CALL_SV.out.sniffles_vcf)
             .map { meta, snv_vcf, sv_vcf ->
                 def sv = sv_vcf ?: []
                 tuple(meta, snv_vcf, sv)
