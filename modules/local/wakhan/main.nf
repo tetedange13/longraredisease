@@ -13,8 +13,8 @@ process WAKHAN {
     path(centromere_bed)
 
     output:
-    tuple val(meta), path("*/*_genes_genome.html")                              , emit: genes_genome_html
-    tuple val(meta), path("*/*_genes_genome.pdf")                               , emit: genes_genome_pdf
+    tuple val(meta), path("*/*_genes_genome.html")                              , emit: genes_genome_html,          optional: true
+    tuple val(meta), path("*/*_genes_genome.pdf")                               , emit: genes_genome_pdf,           optional: true
     tuple val(meta), path("*/*_genome_copynumbers_breakpoints.html")            , emit: breakpoints_html
     tuple val(meta), path("*/*_genome_copynumbers_breakpoints.pdf")             , emit: breakpoints_pdf
     tuple val(meta), path("*/*_genome_copynumbers_breakpoints_subclonal.html")  , emit: breakpoints_subclonal_html
