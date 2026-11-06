@@ -763,30 +763,6 @@ workflow LONGRAREDISEASE {
 
 
 /*
-=======================================================================================
-                        COPY NUMBER VARIANT CALLING
-=======================================================================================
-*/
-
-    if (params.cnv) {
-        CALL_CNV(
-            ch_input_bam,
-            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.summary_txt : channel.empty(),
-            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_bed : channel.empty(),
-            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_csi : channel.empty(),
-            ch_snv_vcf.join(BCFTOOLS_SORT_GENOTYPED.out.vcf),
-            ch_snv_phased_vcf,
-            ch_fasta
-        )
-
-        ch_cnv_vcf = CALL_CNV.out.vcf
-        ch_versions = ch_versions.mix(CALL_CNV.out.versions)
-    } else {
-        ch_cnv_vcf = channel.empty()
-    }
-
-
-/*
 ======================================================================================================
                             HAPLOTAG BAM - required for SV, STR and HIFICNV so automatically turned on
 ======================================================================================================
@@ -836,6 +812,30 @@ workflow LONGRAREDISEASE {
         ch_versions = ch_versions.mix(LONGPHASE_PHASE.out.versions)
         ch_versions = ch_versions.mix(HAPLOTAG_BAM.out.versions)
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX_HAPLOTAG.out.versions)
+    }
+
+
+/*
+=======================================================================================
+                        COPY NUMBER VARIANT CALLING
+=======================================================================================
+*/
+
+    if (params.cnv) {
+        CALL_CNV(
+            ch_input_bam,
+            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.summary_txt : channel.empty(),
+            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_bed : channel.empty(),
+            params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_csi : channel.empty(),
+            ch_snv_vcf.join(BCFTOOLS_SORT_GENOTYPED.out.vcf),
+            ch_snv_phased_vcf,
+            ch_fasta
+        )
+
+        ch_cnv_vcf = CALL_CNV.out.vcf
+        ch_versions = ch_versions.mix(CALL_CNV.out.versions)
+    } else {
+        ch_cnv_vcf = channel.empty()
     }
 
 
