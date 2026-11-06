@@ -462,64 +462,6 @@ workflow LONGRAREDISEASE {
         )
     }
 
-/*
-======================================================================================================
-                            HAPLOTAG BAM - required for SV, STR and HIFICNV so automatically turned on
-======================================================================================================
-*/
-
-    if (params.haplotag_bam){
-
-        SNIFFLES_UNPHASED(
-            ch_input_bam,
-            ch_fasta,
-            ch_trf,
-            params.vcf_output,
-            params.snf_output
-        )
-
-        ch_input_longphase = ch_input_bam  // [meta, bam, bai]
-        .join(ch_snv_vcf, by: 0)
-        .join(SNIFFLES_UNPHASED.out.vcf, by: 0, remainder: true)
-        .map { meta, bam, bai, snv_vcf, sv_vcf ->
-             def sv = sv_vcf ?: []
-             tuple(meta, bam, bai, snv_vcf, sv, [])  // [] = no mod file
-        }
-
-        LONGPHASE_PHASE(
-            ch_input_longphase,
-            ch_fasta,
-            ch_fai
-        )
-
-        HAPLOTAG_BAM(
-            ch_input_bam,
-            LONGPHASE_PHASE.out.snv_vcf,
-            LONGPHASE_PHASE.out.sv_vcf,
-            ch_fasta,
-            ch_fai
-        )
-
-        SAMTOOLS_INDEX_HAPLOTAG(HAPLOTAG_BAM.out.bam)
-
-        ch_input_bam = HAPLOTAG_BAM.out.bam
-        .join(SAMTOOLS_INDEX_HAPLOTAG.out.bai, by: 0)
-        .map { meta, bam, bai -> tuple(meta, bam, bai) }
-
-        // BAM to CRAM conversion
-        SAMTOOLS_CONVERT_HAPLOTAG(
-            ch_input_bam,
-            ch_fasta,
-            [],
-            "crai",
-        )
-
-        ch_versions = ch_versions.mix(SNIFFLES_UNPHASED.out.versions)
-        ch_versions = ch_versions.mix(LONGPHASE_PHASE.out.versions)
-        ch_versions = ch_versions.mix(HAPLOTAG_BAM.out.versions)
-        ch_versions = ch_versions.mix(SAMTOOLS_INDEX_HAPLOTAG.out.versions)
-    }
-
 
 /*
 =======================================================================================
@@ -842,6 +784,68 @@ workflow LONGRAREDISEASE {
         ch_versions = ch_versions.mix(CALL_CNV.out.versions)
     } else {
         ch_cnv_vcf = channel.empty()
+    }
+
+
+/*
+======================================================================================================
+                            HAPLOTAG BAM - required for SV, STR and HIFICNV so automatically turned on
+======================================================================================================
+*/
+
+    if (params.haplotag_bam){
+
+        SNIFFLES_UNPHASED(
+            ch_input_bam,
+            ch_fasta,
+            ch_trf,
+            params.vcf_output,
+            params.snf_output
+        )
+
+        ch_input_longphase = ch_input_bam  // [meta, bam, bai]
+        .join(ch_snv_vcf, by: 0)
+        .join(SNIFFLES_UNPHASED.out.vcf, by: 0, remainder: true)
+        .map { meta, bam, bai, snv_vcf, sv_vcf ->
+             def sv = sv_vcf ?: []
+             tuple(meta, bam, bai, snv_vcf, sv, [])  // [] = no mod file
+        }
+
+        LONGPHASE_PHASE(
+            ch_input_longphase,
+            ch_fasta,
+            ch_fai
+        )
+
+        HAPLOTAG_BAM(
+            ch_input_bam,
+            LONGPHASE_PHASE.out.snv_vcf,
+            LONGPHASE_PHASE.out.sv_vcf,
+            ch_fasta,
+            ch_fai
+        )
+
+        SAMTOOLS_INDEX_HAPLOTAG(HAPLOTAG_BAM.out.bam)
+
+        // ENH: Add whatshap_haplotagphase here ?
+        //      -> To phase some VCFs (SVs one ?) from haplotagged BAM
+
+        ch_input_phased_bam = HAPLOTAG_BAM.out.bam
+            .join(SAMTOOLS_INDEX_HAPLOTAG.out.bai, by: 0)
+            .map { meta, bam, bai -> tuple(meta, bam, bai) }
+
+        // BAM to CRAM conversion
+        SAMTOOLS_CONVERT_HAPLOTAG(
+            ch_input_phased_bam,
+            ch_fasta,
+            [],
+            "crai",
+        )
+
+        ch_versions = ch_versions.mix(SNIFFLES_UNPHASED.out.versions)
+        ch_versions = ch_versions.mix(LONGPHASE_PHASE.out.versions)
+        ch_versions = ch_versions.mix(HAPLOTAG_BAM.out.versions)
+        ch_versions = ch_versions.mix(SAMTOOLS_INDEX_HAPLOTAG.out.versions)
     }
 
 
