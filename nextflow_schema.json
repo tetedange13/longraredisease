@@ -495,6 +495,7 @@
                 },
                 "wakhan_centromere": {
                     "type": "string",
+                    "default": "https://github.com/KolmogorovLab/Wakhan/raw/refs/tags/0.5.0/src/annotations/grch38.cen_coord.curated.bed",
                     "format": "file-path",
                     "description": "Path to test centromere BED file for Wakhan CNV calling.",
                     "fa_icon": "fas fa-vial"
