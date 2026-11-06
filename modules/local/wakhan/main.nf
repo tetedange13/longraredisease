@@ -15,12 +15,12 @@ process WAKHAN {
     output:
     tuple val(meta), path("*/*_genes_genome.html")                              , emit: genes_genome_html,          optional: true
     tuple val(meta), path("*/*_genes_genome.pdf")                               , emit: genes_genome_pdf,           optional: true
-    tuple val(meta), path("*/*_genome_copynumbers_breakpoints.html")            , emit: breakpoints_html
-    tuple val(meta), path("*/*_genome_copynumbers_breakpoints.pdf")             , emit: breakpoints_pdf
-    tuple val(meta), path("*/*_genome_copynumbers_breakpoints_subclonal.html")  , emit: breakpoints_subclonal_html
-    tuple val(meta), path("*/*_genome_copynumbers_breakpoints_subclonal.pdf")   , emit: breakpoints_subclonal_pdf
-    tuple val(meta), path("*/*_genome_copynumbers_details.html")                , emit: copynumbers_details_html
-    tuple val(meta), path("*/*_genome_copynumbers_details.pdf")                 , emit: copynumbers_details_pdf
+    tuple val(meta), path("*/*_genome_copynumbers_breakpoints.html")            , emit: breakpoints_html,           optional: true
+    tuple val(meta), path("*/*_genome_copynumbers_breakpoints.pdf")             , emit: breakpoints_pdf,            optional: true
+    tuple val(meta), path("*/*_genome_copynumbers_breakpoints_subclonal.html")  , emit: breakpoints_subclonal_html, optional: true
+    tuple val(meta), path("*/*_genome_copynumbers_breakpoints_subclonal.pdf")   , emit: breakpoints_subclonal_pdf,  optional: true
+    tuple val(meta), path("*/*_genome_copynumbers_details.html")                , emit: copynumbers_details_html,   optional: true
+    tuple val(meta), path("*/*_genome_copynumbers_details.pdf")                 , emit: copynumbers_details_pdf,    optional: true
     tuple val(meta), path("*/bed_output/*.bed")                                 , emit: bed_files
     tuple val(meta), path("*/variation_plots/*.html")                           , emit: variation_plots
     tuple val(meta), path("*/vcf_output/*_wakhan_cna_*.vcf")                    , emit: vcf_files
