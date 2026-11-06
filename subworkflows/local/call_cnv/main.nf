@@ -123,7 +123,7 @@ workflow CALL_CNV {
                 WAKHAN(
                     ch_wakhan_input,
                     ch_fasta,
-                    [],
+                    params.wakhan_centromere,
                 )
             }
         }
