@@ -831,6 +831,7 @@ workflow LONGRAREDISEASE {
                 def sv = sv_vcf ?: []
                 tuple(meta, snv_vcf, sv)
             }
+        // ENH: Add VCF indexes (SNV + SV) in above input, they seem to be used by Wakhan
 
         CALL_CNV(
             ch_input_bam,
