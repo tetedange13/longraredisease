@@ -834,7 +834,7 @@ workflow LONGRAREDISEASE {
         // ENH: Add VCF indexes (SNV + SV) in above input, they seem to be used by Wakhan
 
         CALL_CNV(
-            ch_input_bam,
+            ch_input_phased_bam,
             params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.summary_txt : channel.empty(),
             params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_bed : channel.empty(),
             params.sequencing_platform == 'ont' && !params.filter_targets ? MOSDEPTH_SUBWORKFLOW.out.regions_csi : channel.empty(),
