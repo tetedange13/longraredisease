@@ -80,6 +80,9 @@ include { MERGE_SV                           } from '../subworkflows/local/merge
 include { GAWK as GENOTYPE_MERGED_SV         } from '../modules/nf-core/gawk/main.nf'
 include { BCFTOOLS_FIXSORT as BCFTOOLS_SORT_GENOTYPED } from '../modules/local/bcftools/fixsort/main.nf'
 
+// Identito-vigilance
+include { BCFTOOLS_MPILEUP as IDENTITO       } from '../modules/nf-core/bcftools/mpileup/main.nf'
+
 
 include { UNIFYVCF                          } from '../modules/local/unify_vcf/main.nf'
 include { ANNOTATE_UNIFIED                   } from '../subworkflows/local/annotate_unified/main.nf'
@@ -813,6 +816,17 @@ workflow LONGRAREDISEASE {
         ch_versions = ch_versions.mix(HAPLOTAG_BAM.out.versions)
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX_HAPLOTAG.out.versions)
     }
+
+    // Identito-vigilance
+    //ENH: Make bcftools/mpileup use 'bcftools -R + BAM index'
+    ch_bam_final = params.haplotag_bam ? ch_input_phased_bam : ch_input_bam
+    ch_identito_in = ch_bam_final
+        .map { meta, bam, _bai -> [meta, bam, "/data/work/CHUUMI/felix/data/snpXplex_hg38.annotated.bed", []] }
+    IDENTITO(
+    ch_identito_in,
+        ch_fasta.join(ch_fai),
+        false,
+    )
 
 
 /*
