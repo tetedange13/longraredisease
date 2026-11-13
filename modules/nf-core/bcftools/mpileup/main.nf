@@ -19,6 +19,7 @@ process BCFTOOLS_MPILEUP {
     tuple val(meta), path("*.{bcf,vcf}{,.gz}"), emit: vcf
     tuple val(meta), path("*.{tbi,csi}"), emit: index, optional: true
     tuple val(meta), path("*stats.txt"), emit: stats
+    tuple val(meta), path("*bcftools_queried.tsv"), emit: queried
     tuple val(meta), path("*.mpileup.gz"), emit: mpileup, optional: true
     tuple val("${task.process}"), val('bcftools'), eval("bcftools --version | sed '1!d; s/^.*bcftools //'"), topic: versions, emit: versions_bcftools
 
@@ -60,6 +61,8 @@ process BCFTOOLS_MPILEUP {
     ${bgzip_mpileup}
 
     bcftools stats ${prefix}.${extension} > ${prefix}.bcftools_stats.txt
+    # For identito
+    bcftools query -f '%CHROM\t%POS\t[%GT]' ${prefix}.${extension} > ${prefix}.bcftools_queried.tsv
     """
 
     stub:

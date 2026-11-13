@@ -81,7 +81,8 @@ include { GAWK as GENOTYPE_MERGED_SV         } from '../modules/nf-core/gawk/mai
 include { BCFTOOLS_FIXSORT as BCFTOOLS_SORT_GENOTYPED } from '../modules/local/bcftools/fixsort/main.nf'
 
 // Identito-vigilance
-include { BCFTOOLS_MPILEUP as IDENTITO       } from '../modules/nf-core/bcftools/mpileup/main.nf'
+include { BCFTOOLS_MPILEUP as CALL_IDENTITO  } from '../modules/nf-core/bcftools/mpileup/main.nf'
+include { FORMAT_IDENTITO                    } from '../modules/local/format_identito/main.nf'
 
 
 include { UNIFYVCF                          } from '../modules/local/unify_vcf/main.nf'
@@ -819,15 +820,19 @@ workflow LONGRAREDISEASE {
 
     ch_bam_final = params.haplotag_bam ? ch_input_phased_bam : ch_input_bam
 
-    if (params.identio_bed) {
+    if (params.identito_bed) {
         // Identito-vigilance
         //ENH: Make bcftools/mpileup use 'bcftools -R + BAM index'
         ch_identito_in = ch_bam_final
-            .map { meta, bam, _bai -> [meta, bam, params.identio_bed, []] }
-        IDENTITO(
-        ch_identito_in,
+            .map { meta, bam, _bai -> [meta, bam, params.identito_bed, []] }
+        CALL_IDENTITO(
+            ch_identito_in,
             ch_fasta.join(ch_fai),
             false,
+        )
+        FORMAT_IDENTITO(
+            CALL_IDENTITO.out.queried,
+            params.identito_bed,
         )
     }
 
