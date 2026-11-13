@@ -817,16 +817,19 @@ workflow LONGRAREDISEASE {
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX_HAPLOTAG.out.versions)
     }
 
-    // Identito-vigilance
-    //ENH: Make bcftools/mpileup use 'bcftools -R + BAM index'
     ch_bam_final = params.haplotag_bam ? ch_input_phased_bam : ch_input_bam
-    ch_identito_in = ch_bam_final
-        .map { meta, bam, _bai -> [meta, bam, "/data/work/CHUUMI/felix/data/snpXplex_hg38.annotated.bed", []] }
-    IDENTITO(
-    ch_identito_in,
-        ch_fasta.join(ch_fai),
-        false,
-    )
+
+    if (params.identio_bed) {
+        // Identito-vigilance
+        //ENH: Make bcftools/mpileup use 'bcftools -R + BAM index'
+        ch_identito_in = ch_bam_final
+            .map { meta, bam, _bai -> [meta, bam, params.identio_bed, []] }
+        IDENTITO(
+        ch_identito_in,
+            ch_fasta.join(ch_fai),
+            false,
+        )
+    }
 
 
 /*

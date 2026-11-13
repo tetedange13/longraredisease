@@ -413,6 +413,10 @@
                     "type": "string",
                     "default": "GRCh38.mane.1.2.ensembl",
                     "description": "SnpEff database to use for annotation"
+                },
+                "identito_bed": {
+                    "type": "string",
+                    "description": "Path to BED file with SNP coordinates to use for identito-vigilance"
                 }
             }
         },
