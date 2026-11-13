@@ -35,6 +35,11 @@
                         "git_sha": "f17049e03697726ace7499d2fe342f892594f6f3",
                         "installed_by": ["modules"]
                     },
+                    "bcftools/mpileup": {
+                        "branch": "master",
+                        "git_sha": "ed7a2286df416088793e62fa6a740d07974d0ff8",
+                        "installed_by": ["modules"]
+                    },
                     "bcftools/norm": {
                         "branch": "master",
                         "git_sha": "f17049e03697726ace7499d2fe342f892594f6f3",
