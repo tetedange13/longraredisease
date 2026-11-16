@@ -37,7 +37,11 @@ process FORMAT_IDENTITO {
         --out-file joint.tsv \\
         $identito_bed filled_query.tsv
 
+    # Bellow file used to enforce sort order of SNP (taken from identito_bed):
+    cut -f4 $identito_bed > identito_IDs.list
+
     cut -f 4,7 joint.tsv \\
+    | csvtk sort --tabs --no-header-row --keys 1:u --levels 1:identito_IDs.list \\
     | csvtk add-header --tabs --names rsID,$prefix \\
     | csvtk transpose --tabs --out-file ${prefix}.${out_extension}
     """
