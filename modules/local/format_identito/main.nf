@@ -26,12 +26,17 @@ process FORMAT_IDENTITO {
     prefix = task.ext.prefix ?: "${meta.id}"
     out_extension = args.contains('--out-delimiter "\t"') || args.contains('-D "\t"') || args.contains("-D \$'\t'") || args.contains("-T") || args.contains("--out-tabs") ? "tsv" : "csv"
     """
+	# FIXME: Handle empty 'queried_vcf'
     csvtk \\
         join \\
         $args \\
         --num-cpus $task.cpus \\
-        --out-file ${prefix}.${out_extension} \\
+        --out-file joint.tsv \\
         $identito_bed $vcf
+
+    cut -f 4,7 joint.tsv \\
+    | csvtk add-header --tabs --names rsID,$prefix \\
+    | csvtk transpose --tabs --out-file ${prefix}.${out_extension}
     """
 
     stub:
