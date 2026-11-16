@@ -115,7 +115,7 @@ workflow CALL_CNV {
             )
 
             // Wakhan (require BAM + SNV_vcf + SV_vcf, all phased)
-            if (params.sv & params.haplotag_bam) {
+            if (params.run_wakhan & params.sv & params.haplotag_bam) {
                 ch_wakhan_input = ch_input_bam
                     .join(ch_snv_vcf)
                     .map { meta, bam, bai, vcf, sv_vcf -> [meta, bam, bai, [], [], vcf, sv_vcf] }
