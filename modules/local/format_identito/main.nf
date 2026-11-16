@@ -26,13 +26,16 @@ process FORMAT_IDENTITO {
     prefix = task.ext.prefix ?: "${meta.id}"
     out_extension = args.contains('--out-delimiter "\t"') || args.contains('-D "\t"') || args.contains("-D \$'\t'") || args.contains("-T") || args.contains("--out-tabs") ? "tsv" : "csv"
     """
-	# FIXME: Handle empty 'queried_tsv'
+    # Handle empty 'queried_tsv' by always adding a dummy row:
+    # (otherwise later join fail on empty 'queried_tsv')
+    (echo -e "chrF\t123\t0/0"; cat $queried_tsv) > filled_query.tsv
+
     csvtk \\
         join \\
         $args \\
         --num-cpus $task.cpus \\
         --out-file joint.tsv \\
-        $identito_bed $queried_tsv
+        $identito_bed filled_query.tsv
 
     cut -f 4,7 joint.tsv \\
     | csvtk add-header --tabs --names rsID,$prefix \\
