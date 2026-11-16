@@ -11,7 +11,7 @@ process FORMAT_IDENTITO {
         'community.wave.seqera.io/library/csvtk:0.37.0--113625988dd3285d' }"
 
     input:
-    tuple val(meta), path(vcf)
+    tuple val(meta), path(queried_tsv)
     path(identito_bed)
 
     output:
@@ -26,13 +26,13 @@ process FORMAT_IDENTITO {
     prefix = task.ext.prefix ?: "${meta.id}"
     out_extension = args.contains('--out-delimiter "\t"') || args.contains('-D "\t"') || args.contains("-D \$'\t'") || args.contains("-T") || args.contains("--out-tabs") ? "tsv" : "csv"
     """
-	# FIXME: Handle empty 'queried_vcf'
+	# FIXME: Handle empty 'queried_tsv'
     csvtk \\
         join \\
         $args \\
         --num-cpus $task.cpus \\
         --out-file joint.tsv \\
-        $identito_bed $vcf
+        $identito_bed $queried_tsv
 
     cut -f 4,7 joint.tsv \\
     | csvtk add-header --tabs --names rsID,$prefix \\
