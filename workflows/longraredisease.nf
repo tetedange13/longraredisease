@@ -359,6 +359,24 @@ workflow LONGRAREDISEASE {
         .join(ch_final_sorted_bai, by: 0)
         .map { meta, bam, bai -> tuple(meta, bam, bai) }
 
+    // IDENTIO-VIGILANCE
+    if (params.identito_bed) {
+        //ENH: Make bcftools/mpileup use 'bcftools -R + BAM index'
+        ch_identito_in = ch_input_bam
+            .map { meta, bam, _bai -> [meta, bam, params.identito_bed, []] }
+
+        CALL_IDENTITO(
+            ch_identito_in,
+            ch_fasta.join(ch_fai),
+            false,
+        )
+
+        FORMAT_IDENTITO(
+            CALL_IDENTITO.out.queried,
+            params.identito_bed,
+        )
+    }
+
 
 /*
 =======================================================================================
@@ -819,22 +837,6 @@ workflow LONGRAREDISEASE {
         [],
         "crai",
     )
-
-    if (params.identito_bed) {
-        // Identito-vigilance
-        //ENH: Make bcftools/mpileup use 'bcftools -R + BAM index'
-        ch_identito_in = ch_bam_final
-            .map { meta, bam, _bai -> [meta, bam, params.identito_bed, []] }
-        CALL_IDENTITO(
-            ch_identito_in,
-            ch_fasta.join(ch_fai),
-            false,
-        )
-        FORMAT_IDENTITO(
-            CALL_IDENTITO.out.queried,
-            params.identito_bed,
-        )
-    }
 
 
 /*
