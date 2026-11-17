@@ -805,20 +805,20 @@ workflow LONGRAREDISEASE {
             .join(SAMTOOLS_INDEX_HAPLOTAG.out.bai, by: 0)
             .map { meta, bam, bai -> tuple(meta, bam, bai) }
 
-        // BAM to CRAM conversion
-        SAMTOOLS_CONVERT_HAPLOTAG(
-            ch_input_phased_bam,
-            ch_fasta,
-            [],
-            "crai",
-        )
-
         ch_versions = ch_versions.mix(LONGPHASE_PHASE.out.versions)
         ch_versions = ch_versions.mix(HAPLOTAG_BAM.out.versions)
         ch_versions = ch_versions.mix(SAMTOOLS_INDEX_HAPLOTAG.out.versions)
     }
 
     ch_bam_final = params.haplotag_bam ? ch_input_phased_bam : ch_input_bam
+
+    // BAM to CRAM conversion
+    SAMTOOLS_CONVERT_HAPLOTAG(
+        ch_bam_final,
+        ch_fasta,
+        [],
+        "crai",
+    )
 
     if (params.identito_bed) {
         // Identito-vigilance
