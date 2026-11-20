@@ -113,12 +113,12 @@ workflow CALL_SV {
     // ========================================
 
         SVIM_ALIGNMENT(input, fasta)
+        BCFTOOLS_SORT_SVIM(SVIM_ALIGNMENT.out.vcf.map{ meta, vcf -> [ meta, vcf, [] ]})
         // 'SUPPORT>=2' defined in conf
-        BCFTOOLS_FILTER_SVIM (SVIM_ALIGNMENT.out.vcf.map{ meta, vcf -> [ meta, vcf, [] ]})
-        BCFTOOLS_SORT_SVIM(BCFTOOLS_FILTER_SVIM.out.vcf)
+        BCFTOOLS_FILTER_SVIM (BCFTOOLS_SORT_SVIM.out.vcf.map{ meta, vcf -> [ meta, vcf, [] ]})
 
-        ch_svim_vcf = BCFTOOLS_SORT_SVIM.out.vcf
-        ch_svim_tbi = BCFTOOLS_SORT_SVIM.out.tbi
+        ch_svim_vcf = BCFTOOLS_FILTER_SVIM.out.vcf
+        ch_svim_tbi = BCFTOOLS_FILTER_SVIM.out.tbi
         }
 
 
