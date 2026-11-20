@@ -367,7 +367,7 @@ workflow LONGRAREDISEASE {
 
         CALL_IDENTITO(
             ch_identito_in,
-            ch_fasta.join(ch_fai),
+            ch_fasta_fai,
             false,
         )
 
