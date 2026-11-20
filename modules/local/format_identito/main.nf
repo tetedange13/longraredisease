@@ -15,7 +15,7 @@ process FORMAT_IDENTITO {
     path(identito_bed)
 
     output:
-    tuple val(meta), path("${prefix}.${out_extension}"), emit: out_file
+    tuple val(meta), path("Identito_mqc.${out_extension}"), emit: out_file
     tuple val("${task.process}"), val('csvtk'), eval("csvtk version | sed -e 's/csvtk v//g'"), emit: versions_csvtk, topic: versions
 
     when:
@@ -43,7 +43,7 @@ process FORMAT_IDENTITO {
     cut -f 4,7 joint.tsv \\
     | csvtk sort --tabs --no-header-row --keys 1:u --levels 1:identito_IDs.list \\
     | csvtk add-header --tabs --names rsID,$prefix \\
-    | csvtk transpose --tabs --out-file ${prefix}.${out_extension}
+    | csvtk transpose --tabs --out-file Identito_mqc.${out_extension}
     """
 
     stub:
