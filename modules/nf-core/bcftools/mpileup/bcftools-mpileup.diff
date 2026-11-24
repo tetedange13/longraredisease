@@ -1,0 +1,30 @@
+Changes in component 'nf-core/bcftools/mpileup'
+'modules/nf-core/bcftools/mpileup/environment.yml' is unchanged
+Changes in 'bcftools/mpileup/main.nf':
+--- modules/nf-core/bcftools/mpileup/main.nf
++++ modules/nf-core/bcftools/mpileup/main.nf
+@@ -19,6 +19,7 @@
+     tuple val(meta), path("*.{bcf,vcf}{,.gz}"), emit: vcf
+     tuple val(meta), path("*.{tbi,csi}"), emit: index, optional: true
+     tuple val(meta), path("*stats.txt"), emit: stats
++    tuple val(meta), path("*bcftools_queried.tsv"), emit: queried
+     tuple val(meta), path("*.mpileup.gz"), emit: mpileup, optional: true
+     tuple val("${task.process}"), val('bcftools'), eval("bcftools --version | sed '1!d; s/^.*bcftools //'"), topic: versions, emit: versions_bcftools
+ 
+@@ -60,6 +61,8 @@
+     ${bgzip_mpileup}
+ 
+     bcftools stats ${prefix}.${extension} > ${prefix}.bcftools_stats.txt
++    # For identito
++    bcftools query -f '%CHROM\t%POS\t[%GT]' ${prefix}.${extension} > ${prefix}.bcftools_queried.tsv
+     """
+ 
+     stub:
+
+'modules/nf-core/bcftools/mpileup/meta.yml' is unchanged
+'modules/nf-core/bcftools/mpileup/.conda-lock/linux_amd64-bd-130aa7603bf3bf5c_9.txt' is unchanged
+'modules/nf-core/bcftools/mpileup/.conda-lock/linux_arm64-bd-f8757489807f9c95_9.txt' is unchanged
+'modules/nf-core/bcftools/mpileup/tests/nextflow.config' was removed
+'modules/nf-core/bcftools/mpileup/tests/main.nf.test.snap' was removed
+'modules/nf-core/bcftools/mpileup/tests/main.nf.test' was removed
+************************************************************
